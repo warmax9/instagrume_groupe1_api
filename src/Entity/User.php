@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use OpenApi\Attributes as OA;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -21,6 +22,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $username = null;
 
     #[ORM\Column]
+    #[OA\Property(type:"array", items: new OA\Items(type:"string"))]
     private array $roles = [];
 
     /**
@@ -252,6 +254,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsBanned(?bool $isBanned): self
     {
         $this->isBanned = $isBanned;
+
+        return $this;
+    }
+
+    public function isIsModo(): ?bool
+    {
+        return $this->isModo;
+    }
+
+    public function setIsModo(bool $isModo): static
+    {
+        $this->isModo = $isModo;
 
         return $this;
     }
