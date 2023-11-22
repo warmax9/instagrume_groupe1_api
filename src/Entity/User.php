@@ -213,10 +213,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Like>
      */
-    public function getLikes(): Collection
-    {
-        return $this->likes;
-    }
+
 
     public function addLike(Like $like): static
     {
@@ -268,5 +265,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->isModo = $isModo;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Like>
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
     }
 }

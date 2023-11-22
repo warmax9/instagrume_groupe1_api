@@ -23,12 +23,14 @@ class Commentaire
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private ?Post $post = null;
 
     #[ORM\OneToMany(mappedBy: 'commentaire', targetEntity: Like::class)]
     private Collection $likes;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'commentairesChildren')]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private ?self $commentaireParent = null;
 
     #[ORM\OneToMany(mappedBy: 'commentaireParent', targetEntity: self::class)]
@@ -113,10 +115,6 @@ class Commentaire
         return $this;
     }
 
-    public function getCommentaireParent(): ?self
-    {
-        return $this->commentaireParent;
-    }
 
     public function setCommentaireParent(?self $commentaireParent): static
     {
@@ -133,7 +131,12 @@ class Commentaire
         return $this->commentairesChildren;
     }
 
-    public function addCommentairesChild(self $commentairesChild): static
+    public function getCommentaireParent(): ?self
+    {
+        return $this->commentaireParent;
+    }
+
+    public function addCommentairesChild(Commentaire $commentairesChild): static
     {
         if (!$this->commentairesChildren->contains($commentairesChild)) {
             $this->commentairesChildren->add($commentairesChild);
@@ -143,7 +146,7 @@ class Commentaire
         return $this;
     }
 
-    public function removeCommentairesChild(self $commentairesChild): static
+    public function removeCommentairesChild(Commentaire $commentairesChild): static
     {
         if ($this->commentairesChildren->removeElement($commentairesChild)) {
             // set the owning side to null (unless already changed)
@@ -154,6 +157,7 @@ class Commentaire
 
         return $this;
     }
+
 
 
 }

@@ -74,4 +74,62 @@ class LikeController extends AbstractController {
 
         return new Response($this->jsonConverter->encodeToJson($like));
     }
+
+    #[Route('/api/likes', methods: ['PUT'])]
+    #[OA\Put(description: 'Modifie un like et retourne ses informations')]
+    #[OA\Response(
+		response: 200,
+		description: 'Le like mis à jour',
+        content: new OA\JsonContent(ref: new Model(type: Like::class))
+	)]
+	#[OA\RequestBody(
+		required: true,
+		content: new OA\JsonContent(
+			type: 'object',
+			properties: [
+                new OA\Property(property: 'id', type: 'integer'),
+                new OA\Property(property: 'value', type: 'boolean'),
+			]
+		)
+	)]
+    #[OA\Tag(name: 'Like')]
+	public function updateLike(ManagerRegistry $doctrine) {
+		$entityManager = $doctrine->getManager();
+        $request = Request::createFromGlobals();
+        $data = json_decode($request->getContent(), true);
+        $like = $doctrine->getRepository(Like::class)->find($data['id']);
+        if (!$like) {
+            throw $this->createNotFoundException(
+                'Pas de like'
+            );
+        }
+        $like->setValue($data['value']);
+        $entityManager->persist($like);
+        $entityManager->flush();
+
+        return new Response($this->jsonConverter->encodeToJson($like));
+    }
+
+    #[Route('/api/likes/{id}', methods: ['DELETE'])]
+    #[OA\Delete(description: 'Supprime un like')]
+	#[OA\Parameter(
+		name: 'id',
+		in: 'path',
+		schema: new OA\Schema(type: 'integer'),
+		required: true,
+		description: 'L\'identifiant d\'un like'
+	)]
+	#[OA\Tag(name: 'Like')]
+	public function deleteLike(ManagerRegistry $doctrine, $id) {
+		$entityManager = $doctrine->getManager();
+        $like = $entityManager->getRepository(Like::class)->find($id);
+        if (!$like) {
+            throw $this->createNotFoundException(
+                'Pas de like avec id '.$id
+            );
+        }
+        $entityManager->remove($like);
+        $entityManager->flush();
+        return new Response("sucess");
+    }
 }

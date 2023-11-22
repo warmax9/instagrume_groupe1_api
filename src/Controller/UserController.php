@@ -40,8 +40,8 @@ class UserController extends AbstractController {
             content: new OA\JsonContent(
                 type: 'object',
                 properties: [
-                    new OA\Property(property: 'username', type: 'string'),
-                    new OA\Property(property: 'password', type: 'string')
+                    new OA\Property(property: 'username', type: 'string', default: "admin"),
+                    new OA\Property(property: 'password', type: 'string', default: "password")
                 ]
             )
         )]
@@ -114,5 +114,49 @@ class UserController extends AbstractController {
         $data = $this->jsonConverter->encodeToJson($user);
         $entityManager->flush();
         return new Response($data);
+    }
+
+    #[Route('/api/banned/{id}', methods: ['PUT'])]
+    #[OA\Put(description: 'Bannir un utilisateur via son id')]
+    #[OA\Response(
+		response: 200,
+		description: 'L\'utilisateur',
+        content: new OA\JsonContent(ref: new Model(type: User::class))
+	)]
+    #[OA\Tag(name: 'User')]
+	public function banneUser(ManagerRegistry $doctrine, $id) {
+        $entityManager = $doctrine->getManager();
+        $user = $doctrine->getRepository(User::class)->find($id);
+        if (!$user) {
+            throw $this->createNotFoundException(
+                'Pas d\'utilisateur'
+            );
+        }
+        $user->setIsBanned(true);
+        $entityManager->persist($user);
+        $entityManager->flush();
+        return new Response($this->jsonConverter->encodeToJson($user));
+    }
+
+    #[Route('/api/unbanned/{id}', methods: ['PUT'])]
+    #[OA\Put(description: 'Bannir un utilisateur via son id')]
+    #[OA\Response(
+		response: 200,
+		description: 'L\'utilisateur',
+        content: new OA\JsonContent(ref: new Model(type: User::class))
+	)]
+    #[OA\Tag(name: 'User')]
+	public function unbanneUser(ManagerRegistry $doctrine, $id) {
+        $entityManager = $doctrine->getManager();
+        $user = $doctrine->getRepository(User::class)->find($id);
+        if (!$user) {
+            throw $this->createNotFoundException(
+                'Pas d\'utilisateur'
+            );
+        }
+        $user->setIsBanned(false);
+        $entityManager->persist($user);
+        $entityManager->flush();
+        return new Response($this->jsonConverter->encodeToJson($user));
     }
 }

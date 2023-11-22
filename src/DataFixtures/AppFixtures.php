@@ -32,6 +32,7 @@ class AppFixtures extends Fixture
         $post->setDescription("description");
         $post->setImage('image');
         $post->setUser($userAdmin);
+        $post->setIsOpen(true);
         $manager->persist($post);
 
         $commentaire = new Commentaire();
@@ -51,7 +52,6 @@ class AppFixtures extends Fixture
         $like2->setCommentaire($commentaire);
         $like2->setUser($userAdmin);
         $manager->persist($like2);
-
         $manager->flush();
     }
 }

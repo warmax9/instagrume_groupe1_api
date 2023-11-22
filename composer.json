@@ -11,7 +11,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.16",
-        "lexik/jwt-authentication-bundle": "^2.18",
+        "lexik/jwt-authentication-bundle": "*",
         "nelmio/api-doc-bundle": "*",
         "symfony/asset": "6.3.*",
         "symfony/console": "6.3.*",

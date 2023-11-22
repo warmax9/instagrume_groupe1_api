@@ -19,12 +19,14 @@ class Like
 
     #[ORM\ManyToOne(inversedBy: 'likes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'likes')]
     private ?Post $post = null;
 
     #[ORM\ManyToOne(inversedBy: 'likes')]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private ?Commentaire $commentaire = null;
 
     public function getId(): ?int

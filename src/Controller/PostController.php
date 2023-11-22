@@ -66,8 +66,73 @@ class PostController extends AbstractController {
         if(isset($dataArray['description'])){
             $post->setDescription($dataArray['description']);
         }
+        $post->setIsOpen(true);
+        $entityManager->persist($post);
+        $entityManager->flush();
+        return new Response($this->jsonConverter->encodeToJson($post));
+    }
+
+    #[Route('/api/posts/{id}', methods: ['DELETE'])]
+    #[OA\Delete(description: 'Supprime un posts')]
+	#[OA\Parameter(
+		name: 'id',
+		in: 'path',
+		schema: new OA\Schema(type: 'integer'),
+		required: true,
+		description: 'L\'identifiant d\'un post'
+	)]
+	#[OA\Tag(name: 'Post')]
+	public function deletePost(ManagerRegistry $doctrine, $id) {
+		$entityManager = $doctrine->getManager();
+        $post = $entityManager->getRepository(Post::class)->find($id);
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'Pas de post avec id '.$id
+            );
+        }
+        $entityManager->remove($post);
+        $entityManager->flush();
+        return new Response("sucess");
+    }
+
+    #[Route('/api/posts', methods: ['PUT'])]
+    #[OA\Put(description: 'Modifie un post et retourne ses informations')]
+    #[OA\Response(
+		response: 200,
+		description: 'Le post mis à jour',
+        content: new OA\JsonContent(ref: new Model(type: Post::class))
+	)]
+	#[OA\RequestBody(
+		required: true,
+		content: new OA\JsonContent(
+			type: 'object',
+			properties: [
+                new OA\Property(property: 'id', type: 'integer'),
+                new OA\Property(property: 'image', type: 'string'),
+                new OA\Property(property: 'is_open', type: 'bool', default: true),
+                new OA\Property(property: 'description', type: 'string')
+			]
+		)
+	)]
+    #[OA\Tag(name: 'Post')]
+	public function updatePost(ManagerRegistry $doctrine) {
+		$entityManager = $doctrine->getManager();
+        $request = Request::createFromGlobals();
+        $data = json_decode($request->getContent(), true);
+        $post = $doctrine->getRepository(Post::class)->find($data['id']);
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'Pas de post'
+            );
+        }
+        $post->setImage($data['image']);
+        $post->setIsOpen($data['is_open']);
+        $post->setDescription($data['description']);
         $entityManager->persist($post);
         $entityManager->flush();
         return new Response($this->jsonConverter->encodeToJson($post));
     }
 }
+
+
+
