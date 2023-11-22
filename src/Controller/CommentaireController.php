@@ -3,10 +3,17 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Persistence\ManagerRegistry;
+
 use App\Entity\Commentaire;
+use App\Entity\Post;
+use App\Entity\User;
+
 use App\Service\JsonConverter;
 use OpenApi\Attributes as OA;
+use Nelmio\ApiDocBundle\Annotation\Model;
+
 class CommentaireController extends AbstractController {
 
     private $jsonConverter;
@@ -24,5 +31,47 @@ class CommentaireController extends AbstractController {
         return new Response($this->jsonConverter->encodeToJson($commentaires));
     }
 
+    #[Route('/api/commentaire', methods: ['POST'])]
+    #[OA\Post(description: 'Crée un nouveau commentaire soit sur un post soit sur un commentaire et le retourne ')]
+    #[OA\Response(
+		response: 200,
+		description: 'Le nouveau commentaire',
+        content: new OA\JsonContent(ref: new Model(type: Commentaire::class))
+	)]
+	#[OA\RequestBody(
+		required: true,
+		content: new OA\JsonContent(
+			type: 'object',
+			properties: [
+                new OA\Property(property: 'content', type: 'string'),
+                new OA\Property(property: 'user_id', type: 'integer'),
+                new OA\Property(property: 'post_id', type: 'integer', default: null),
+                new OA\Property(property: 'commentaire_id', type: 'integer', default: null)
+			]
+		)
+	)]
+	#[OA\Tag(name: 'Commentaire')]
+    public function insertCommentaire(ManagerRegistry $doctrine){
+        $request = Request::createFromGlobals();
+        $dataArray = json_decode($request->getContent(), true);
+        $entityManager = $doctrine->getManager();
+
+        $commentaire = new Commentaire();
+        $commentaire->setContent($dataArray['content']);
+        $user = $entityManager->getRepository(User::class)->find($dataArray['user_id']);
+        $commentaire->setUser($user);
+        if(isset($dataArray['post_id'])){
+            $post = $entityManager->getRepository(Post::class)->find($dataArray['post_id']);
+            $commentaire->setPost($post);
+        }
+        if(isset($dataArray['commentaire_id'])){
+            $commentaire = $entityManager->getRepository(Commentaire::class)->find($dataArray['commentaire_id']);
+            $commentaire->setCommentaireParent($commentaire);
+        }
+        $entityManager->persist($commentaire);
+        $entityManager->flush();
+
+        return new Response($this->jsonConverter->encodeToJson($commentaire));
+    }
 
 }

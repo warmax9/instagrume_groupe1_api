@@ -23,15 +23,23 @@ class Commentaire
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
-    #[ORM\JoinColumn(nullable: false)]
     private ?Post $post = null;
 
     #[ORM\OneToMany(mappedBy: 'commentaire', targetEntity: Like::class)]
     private Collection $likes;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'commentairesChildren')]
+    private ?self $commentaireParent = null;
+
+    #[ORM\OneToMany(mappedBy: 'commentaireParent', targetEntity: self::class)]
+    private Collection $commentairesChildren;
+
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
+        $this->commentairesChildren = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -104,4 +112,48 @@ class Commentaire
 
         return $this;
     }
+
+    public function getCommentaireParent(): ?self
+    {
+        return $this->commentaireParent;
+    }
+
+    public function setCommentaireParent(?self $commentaireParent): static
+    {
+        $this->commentaireParent = $commentaireParent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getCommentairesChildren(): Collection
+    {
+        return $this->commentairesChildren;
+    }
+
+    public function addCommentairesChild(self $commentairesChild): static
+    {
+        if (!$this->commentairesChildren->contains($commentairesChild)) {
+            $this->commentairesChildren->add($commentairesChild);
+            $commentairesChild->setCommentaireParent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentairesChild(self $commentairesChild): static
+    {
+        if ($this->commentairesChildren->removeElement($commentairesChild)) {
+            // set the owning side to null (unless already changed)
+            if ($commentairesChild->getCommentaireParent() === $this) {
+                $commentairesChild->setCommentaireParent(null);
+            }
+        }
+
+        return $this;
+    }
+
+
 }

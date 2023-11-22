@@ -22,6 +22,11 @@ class PostController extends AbstractController {
     }
 
     #[Route('/api/posts', methods: ['GET'])]
+    #[OA\Response(
+        response: 200,
+        description: 'Récupère tous les posts',
+        content: new OA\JsonContent(ref: new Model(type: Post::class))
+    )]
     #[OA\Tag(name: 'Post')]
     public function getPosts(ManagerRegistry $doctrine){
         $entityManager = $doctrine->getManager();
