@@ -46,10 +46,6 @@ class Like
         return $this;
     }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
 
     public function setUser(?User $user): static
     {

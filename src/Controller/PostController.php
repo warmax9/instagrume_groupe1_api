@@ -12,7 +12,7 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Service\JsonConverter;
-
+use App\Repository\PostRepository;
 
 class PostController extends AbstractController {
 
@@ -22,17 +22,29 @@ class PostController extends AbstractController {
     }
 
     #[Route('/api/posts', methods: ['GET'])]
+    #[OA\Parameter(
+        name: 'user_id',
+        in: 'query',
+        description: 'L\'id qui permet d\'avoir tous les pots d\'un user',
+        schema: new OA\Schema(type: 'integer')
+    )]
     #[OA\Response(
         response: 200,
         description: 'Récupère tous les posts',
         content: new OA\JsonContent(ref: new Model(type: Post::class))
     )]
     #[OA\Tag(name: 'Post')]
-    public function getPosts(ManagerRegistry $doctrine){
+    public function getPosts(ManagerRegistry $doctrine, PostRepository $postRepository){
         $entityManager = $doctrine->getManager();
-
-        $posts = $entityManager->getRepository(Post::class)->findAll();
-
+        $request = Request::createFromGlobals();
+        $idUSer = $request->query->get('user_id');
+        if(!$idUSer){
+            $posts = $entityManager->getRepository(Post::class)->findAll();
+        }
+        else{
+            $user = $entityManager->getRepository(User::class)->find($idUSer);
+            $posts = $entityManager->getRepository(Post::class)->findPostsByUser($user);
+        }
         return new Response($this->jsonConverter->encodeToJson($posts));
     }
 
@@ -132,6 +144,8 @@ class PostController extends AbstractController {
         $entityManager->flush();
         return new Response($this->jsonConverter->encodeToJson($post));
     }
+
+
 }
 
 

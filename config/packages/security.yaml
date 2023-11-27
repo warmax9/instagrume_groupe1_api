@@ -29,9 +29,10 @@ security:
         - { path: ^/api/post, roles: ROLE_USER }
         - { path: ^/api/commentaire, roles: ROLE_USER }
         - { path: ^/api/likes, roles: ROLE_USER }
+        - { path: ^/api/banned, roles: ROLE_ADMIN  }
+        - { path: ^/api/unbanned, roles: ROLE_ADMIN  }
         - { path: ^/api, roles: PUBLIC_ACCESS }
-        - { path: ^/api/banned, roles: ROLE_ADMIN }
-        - { path: ^/api/unbanned, roles: ROLE_ADMIN }
+
 
 when@test:
     security:

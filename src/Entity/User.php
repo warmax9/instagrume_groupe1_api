@@ -150,13 +150,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    /**
-     * @return Collection<int, Post>
-     */
-    public function getPosts(): Collection
-    {
-        return $this->posts;
-    }
+
 
     public function addPost(Post $post): static
     {
@@ -167,7 +161,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
+/*
     public function removePost(Post $post): static
     {
         if ($this->posts->removeElement($post)) {
@@ -179,14 +173,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+*/
 
-    /**
-     * @return Collection<int, Commentaire>
-     */
-    public function getCommentaires(): Collection
-    {
-        return $this->commentaires;
-    }
 
     public function addCommentaire(Commentaire $commentaire): static
     {
@@ -197,7 +185,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
+/*
     public function removeCommentaire(Commentaire $commentaire): static
     {
         if ($this->commentaires->removeElement($commentaire)) {
@@ -210,10 +198,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Like>
-     */
-
+*/
 
     public function addLike(Like $like): static
     {
@@ -224,7 +209,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
+/*
     public function removeLike(Like $like): static
     {
         if ($this->likes->removeElement($like)) {
@@ -236,7 +221,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
+*/
     /**
      * Get the value of isBanned
      */
@@ -267,11 +252,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Like>
-     */
-    public function getLikes(): Collection
-    {
-        return $this->likes;
-    }
 }

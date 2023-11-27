@@ -22,10 +22,23 @@ class CommentaireController extends AbstractController {
     }
 
     #[Route('/api/commentaire', methods: ['GET'])]
+    #[OA\Parameter(
+        name: 'post_id',
+        in: 'query',
+        description: 'L\'id qui permet d\'avoir tous les commentaires d\'un post',
+        schema: new OA\Schema(type: 'integer')
+    )]
     #[OA\Tag(name: 'Commentaire')]
     public function getPosts(ManagerRegistry $doctrine){
         $entityManager = $doctrine->getManager();
-        $commentaires = $entityManager->getRepository(Commentaire::class)->findAll();
+        $request = Request::createFromGlobals();
+        $idPost = $request->query->get('post_id');
+        if(!$idPost){
+            $commentaires = $entityManager->getRepository(Commentaire::class)->findAll();
+        }
+        else{
+            $commentaires = $entityManager->getRepository(Commentaire::class)->findOneBy(['post' => $idPost]);
+        }
         return new Response($this->jsonConverter->encodeToJson($commentaires));
     }
 

@@ -81,6 +81,16 @@ class UserController extends AbstractController {
          $data = $this->jsonConverter->encodeToJson($user);
          return new Response($data);
     }
+
+    #[Route('/api/user/{id}', methods: ['GET'])]
+    #[OA\Tag(name: 'User')]
+    public function getUserById(Request $request, JWTEncoderInterface $JWTManager, ManagerRegistry $doctrine, $id){
+
+         $entityManager = $doctrine->getManager();
+         $user = $entityManager->getRepository(User::class)->find($id);
+         return new Response($this->jsonConverter->encodeToJson($user));
+    }
+    
     #[Route('/api/register', methods: ['POST'])]
     #[OA\Response(
         response: 200,
