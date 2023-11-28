@@ -50,6 +50,11 @@ class PostController extends AbstractController
             $user = $entityManager->getRepository(User::class)->find($idUSer);
             $posts = $entityManager->getRepository(Post::class)->findPostsByUser($user);
         }
+        foreach ($posts as $post) {
+            $img = file_get_contents(__DIR__ . '/../../public/images/post/' . $post->getImage());
+            $post->setImage(base64_encode($img));
+            $entityManager->persist($post);
+        }
         return new Response($this->jsonConverter->encodeToJson($posts));
     }
 
@@ -82,20 +87,21 @@ class PostController extends AbstractController
         $post = new Post();
         $post->setUser($user);
         $binaryImageData = base64_decode($dataArray['image']);
-        $post->setImage($uniqueId);
         if (isset($dataArray['description'])) {
             $post->setDescription($dataArray['description']);
         }
         $post->setIsOpen(true);
-        $entityManager->persist($post);
-        $entityManager->flush();
-
         //récupère l'extension de l'image
         $imageType = exif_imagetype('data://image/jpeg;base64,' . base64_encode($binaryImageData));
         $extension = image_type_to_extension($imageType);
 
-        $filePath = __DIR__ . '/../../public/images/'. $uniqueId . $extension;
+        $filePath = __DIR__ . '/../../public/images/post/' . $uniqueId . $extension;
         file_put_contents($filePath, $binaryImageData);
+
+        $post->setImage($uniqueId . $extension);
+        $entityManager->persist($post);
+        $entityManager->flush();
+
         return new Response($this->jsonConverter->encodeToJson($post));
     }
 

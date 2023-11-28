@@ -20,18 +20,32 @@ class AppFixtures extends Fixture
     {
 
         $userAdmin = new User();
-        
         $userAdmin->setUsername('admin');
         $userAdmin->setRoles(["ROLE_ADMIN"]);
         $userAdmin->setPassword($this->passwordHasher->hashPassword($userAdmin, 'password'));
-        $userAdmin->setPhoto("photo");
+        $userAdmin->setPhoto("admin.jpg");
         $userAdmin->setModo(true);
         $manager->persist($userAdmin);
 
+        $user = new User();
+        $user->setUsername('user1');
+        $user->setRoles(["ROLE_ADMIN"]);
+        $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
+        $user->setPhoto("user1.jpg");
+        $user->setModo(false);
+        $manager->persist($user);
+
         $post = new Post();
-        $post->setDescription("description");
-        $post->setImage('image');
+        $post->setDescription("Description photo kiwi");
+        $post->setImage('kiwi.jpg');
         $post->setUser($userAdmin);
+        $post->setIsOpen(true);
+        $manager->persist($post);
+
+        $post = new Post();
+        $post->setDescription("Le petit dej d'un go muscu");
+        $post->setImage('agrummes.jpg');
+        $post->setUser($user);
         $post->setIsOpen(true);
         $manager->persist($post);
 

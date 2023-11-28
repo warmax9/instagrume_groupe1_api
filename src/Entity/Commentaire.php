@@ -34,6 +34,7 @@ class Commentaire
     private ?self $commentaireParent = null;
 
     #[ORM\OneToMany(mappedBy: 'commentaireParent', targetEntity: self::class)]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private Collection $commentairesChildren;
 
 
