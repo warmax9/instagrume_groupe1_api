@@ -126,45 +126,39 @@ class UserController extends AbstractController {
         return new Response($data);
     }
 
-    #[Route('/api/banned/{id}', methods: ['PUT'])]
-    #[OA\Put(description: 'Bannir un utilisateur via son id')]
+    #[Route('/api/user', methods: ['PUT'])]
+    #[OA\Put(description: 'Modifie un utilisateur')]
     #[OA\Response(
 		response: 200,
-		description: 'L\'utilisateur',
+		description: 'L\'utilisateur modifié',
         content: new OA\JsonContent(ref: new Model(type: User::class))
 	)]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            type: 'object',
+            properties: [
+                new OA\Property(property: 'username', type: 'string'),
+                new OA\Property(property: 'password', type: 'string'),
+                new OA\Property(property: 'photo', type: 'string'),
+                new OA\Property(property: 'is_banned', type: 'boolean'),
+            ]
+        )
+    )]
     #[OA\Tag(name: 'User')]
-	public function banneUser(ManagerRegistry $doctrine, $id) {
+	public function unbanneUser(ManagerRegistry $doctrine, Request $request) {
         $entityManager = $doctrine->getManager();
-        $user = $doctrine->getRepository(User::class)->find($id);
+        $dataArray = json_decode($request->getContent(), true);
+        $user = $doctrine->getRepository(User::class)->find($dataArray['id']);
         if (!$user) {
             throw $this->createNotFoundException(
                 'Pas d\'utilisateur'
             );
         }
-        $user->setIsBanned(true);
-        $entityManager->persist($user);
-        $entityManager->flush();
-        return new Response($this->jsonConverter->encodeToJson($user));
-    }
-
-    #[Route('/api/unbanned/{id}', methods: ['PUT'])]
-    #[OA\Put(description: 'Bannir un utilisateur via son id')]
-    #[OA\Response(
-		response: 200,
-		description: 'L\'utilisateur',
-        content: new OA\JsonContent(ref: new Model(type: User::class))
-	)]
-    #[OA\Tag(name: 'User')]
-	public function unbanneUser(ManagerRegistry $doctrine, $id) {
-        $entityManager = $doctrine->getManager();
-        $user = $doctrine->getRepository(User::class)->find($id);
-        if (!$user) {
-            throw $this->createNotFoundException(
-                'Pas d\'utilisateur'
-            );
-        }
-        $user->setIsBanned(false);
+        $user->setUsername($dataArray['username']);
+        $user->setPassword($this->passwordHasher->hashPassword($user, $dataArray['password']));
+        $user->setPhoto($dataArray['photo']);
+        $user->setIsBanned($dataArray["is_banned"]);
         $entityManager->persist($user);
         $entityManager->flush();
         return new Response($this->jsonConverter->encodeToJson($user));

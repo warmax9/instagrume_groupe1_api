@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Controller;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,10 +16,13 @@ use App\Entity\User;
 use App\Service\JsonConverter;
 use App\Repository\PostRepository;
 
-class PostController extends AbstractController {
+class PostController extends AbstractController
+{
 
     private $jsonConverter;
-    public  function __construct(JsonConverter $jsonConverter) {
+
+    public  function __construct(JsonConverter $jsonConverter)
+    {
         $this->jsonConverter = $jsonConverter;
     }
 
@@ -34,14 +39,14 @@ class PostController extends AbstractController {
         content: new OA\JsonContent(ref: new Model(type: Post::class))
     )]
     #[OA\Tag(name: 'Post')]
-    public function getPosts(ManagerRegistry $doctrine, PostRepository $postRepository){
+    public function getPosts(ManagerRegistry $doctrine, PostRepository $postRepository)
+    {
         $entityManager = $doctrine->getManager();
         $request = Request::createFromGlobals();
         $idUSer = $request->query->get('user_id');
-        if(!$idUSer){
+        if (!$idUSer) {
             $posts = $entityManager->getRepository(Post::class)->findAll();
-        }
-        else{
+        } else {
             $user = $entityManager->getRepository(User::class)->find($idUSer);
             $posts = $entityManager->getRepository(Post::class)->findPostsByUser($user);
         }
@@ -51,55 +56,66 @@ class PostController extends AbstractController {
     #[Route('/api/posts', methods: ['POST'])]
     #[OA\Post(description: 'Crée un nouveau post et retourne ses informations')]
     #[OA\Response(
-		response: 200,
-		description: 'Le nouveau post',
+        response: 200,
+        description: 'Le nouveau post',
         content: new OA\JsonContent(ref: new Model(type: Post::class))
-	)]
-	#[OA\RequestBody(
-		required: true,
-		content: new OA\JsonContent(
-			type: 'object',
-			properties: [
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            type: 'object',
+            properties: [
                 new OA\Property(property: 'image', type: 'string'),
                 new OA\Property(property: 'user_id', type: 'integer'),
                 new OA\Property(property: 'description', type: 'string'),
-			]
-		)
-	)]
-	#[OA\Tag(name: 'Post')]
-    public function insertPost(ManagerRegistry $doctrine){
+            ]
+        )
+    )]
+    #[OA\Tag(name: 'Post')]
+    public function insertPost(ManagerRegistry $doctrine)
+    {
+        $uniqueId = uniqid();
         $request = Request::createFromGlobals();
         $dataArray = json_decode($request->getContent(), true);
         $entityManager = $doctrine->getManager();
         $user = $entityManager->getRepository(User::class)->find($dataArray['user_id']);
         $post = new Post();
         $post->setUser($user);
-        $post->setImage($dataArray['image']);
-        if(isset($dataArray['description'])){
+        $binaryImageData = base64_decode($dataArray['image']);
+        $post->setImage($uniqueId);
+        if (isset($dataArray['description'])) {
             $post->setDescription($dataArray['description']);
         }
         $post->setIsOpen(true);
         $entityManager->persist($post);
         $entityManager->flush();
+
+        //récupère l'extension de l'image
+        $imageType = exif_imagetype('data://image/jpeg;base64,' . base64_encode($binaryImageData));
+        $extension = image_type_to_extension($imageType);
+
+        $filePath = __DIR__ . '/../../public/images/'. $uniqueId . $extension;
+        file_put_contents($filePath, $binaryImageData);
         return new Response($this->jsonConverter->encodeToJson($post));
     }
 
     #[Route('/api/posts/{id}', methods: ['DELETE'])]
     #[OA\Delete(description: 'Supprime un posts')]
-	#[OA\Parameter(
-		name: 'id',
-		in: 'path',
-		schema: new OA\Schema(type: 'integer'),
-		required: true,
-		description: 'L\'identifiant d\'un post'
-	)]
-	#[OA\Tag(name: 'Post')]
-	public function deletePost(ManagerRegistry $doctrine, $id) {
-		$entityManager = $doctrine->getManager();
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        schema: new OA\Schema(type: 'integer'),
+        required: true,
+        description: 'L\'identifiant d\'un post'
+    )]
+    #[OA\Tag(name: 'Post')]
+    public function deletePost(ManagerRegistry $doctrine, $id)
+    {
+        $entityManager = $doctrine->getManager();
         $post = $entityManager->getRepository(Post::class)->find($id);
         if (!$post) {
             throw $this->createNotFoundException(
-                'Pas de post avec id '.$id
+                'Pas de post avec id ' . $id
             );
         }
         $entityManager->remove($post);
@@ -110,25 +126,26 @@ class PostController extends AbstractController {
     #[Route('/api/posts', methods: ['PUT'])]
     #[OA\Put(description: 'Modifie un post et retourne ses informations')]
     #[OA\Response(
-		response: 200,
-		description: 'Le post mis à jour',
+        response: 200,
+        description: 'Le post mis à jour',
         content: new OA\JsonContent(ref: new Model(type: Post::class))
-	)]
-	#[OA\RequestBody(
-		required: true,
-		content: new OA\JsonContent(
-			type: 'object',
-			properties: [
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            type: 'object',
+            properties: [
                 new OA\Property(property: 'id', type: 'integer'),
                 new OA\Property(property: 'image', type: 'string'),
                 new OA\Property(property: 'is_open', type: 'bool', default: true),
                 new OA\Property(property: 'description', type: 'string')
-			]
-		)
-	)]
+            ]
+        )
+    )]
     #[OA\Tag(name: 'Post')]
-	public function updatePost(ManagerRegistry $doctrine) {
-		$entityManager = $doctrine->getManager();
+    public function updatePost(ManagerRegistry $doctrine)
+    {
+        $entityManager = $doctrine->getManager();
         $request = Request::createFromGlobals();
         $data = json_decode($request->getContent(), true);
         $post = $doctrine->getRepository(Post::class)->find($data['id']);
@@ -144,9 +161,4 @@ class PostController extends AbstractController {
         $entityManager->flush();
         return new Response($this->jsonConverter->encodeToJson($post));
     }
-
-
 }
-
-
-
