@@ -86,6 +86,8 @@ class UserController extends AbstractController
 
         $entityManager = $doctrine->getManager();
         $user = $entityManager->getRepository(User::class)->findOneBy(['username' => $data['username']]);
+        $img = file_get_contents(__DIR__ . '/../../public/images/user/' . $user->getPhoto());
+        $user->setPhoto(base64_encode($img));
         $data = $this->jsonConverter->encodeToJson($user);
         return new Response($data);
     }
@@ -97,6 +99,8 @@ class UserController extends AbstractController
 
         $entityManager = $doctrine->getManager();
         $user = $entityManager->getRepository(User::class)->find($id);
+        $img = file_get_contents(__DIR__ . '/../../public/images/user/' . $user->getPhoto());
+        $user->setPhoto(base64_encode($img));
         return new Response($this->jsonConverter->encodeToJson($user));
     }
 
@@ -129,7 +133,7 @@ class UserController extends AbstractController
         $user->setRoles(["ROLE_USER"]);
         $user->setPassword($this->passwordHasher->hashPassword($user, $dataArray['password']));
 
-        $binaryImageData = base64_decode($dataArray['image']);
+        $binaryImageData = base64_decode($dataArray['photo']);
         //récupère l'extension de l'image
         $imageType = exif_imagetype('data://image/jpeg;base64,' . base64_encode($binaryImageData));
         $extension = image_type_to_extension($imageType);
@@ -137,7 +141,7 @@ class UserController extends AbstractController
         $filePath = __DIR__ . '/../../public/images/user/' . $uniqueId . $extension;
         file_put_contents($filePath, $binaryImageData);
         $user->setPhoto($uniqueId . $extension);
-        
+
         $user->setModo(false);
         $entityManager->persist($user);
         $data = $this->jsonConverter->encodeToJson($user);
@@ -157,6 +161,7 @@ class UserController extends AbstractController
         content: new OA\JsonContent(
             type: 'object',
             properties: [
+                new OA\Property(property: 'id', type: 'integer'),
                 new OA\Property(property: 'username', type: 'string'),
                 new OA\Property(property: 'password', type: 'string'),
                 new OA\Property(property: 'photo', type: 'string'),
@@ -175,10 +180,21 @@ class UserController extends AbstractController
                 'Pas d\'utilisateur'
             );
         }
-        $user->setUsername($dataArray['username']);
-        $user->setPassword($this->passwordHasher->hashPassword($user, $dataArray['password']));
-        $user->setPhoto($dataArray['photo']);
-        $user->setIsBanned($dataArray["is_banned"]);
+        if (isset($dataArray['username'])) $user->setUsername($dataArray['username']);
+        if (isset($dataArray['password'])) $user->setPassword($this->passwordHasher->hashPassword($user, $dataArray['password']));
+        if (isset($dataArray['photo'])) {
+            $uniqueId = uniqid();
+            unlink( __DIR__ . '/../../public/images/user/' . $user->getPhoto());
+            $binaryImageData = base64_decode($dataArray['photo']);
+            //récupère l'extension de l'image
+            $imageType = exif_imagetype('data://image/jpeg;base64,' . base64_encode($binaryImageData));
+            $extension = image_type_to_extension($imageType);
+
+            $filePath = __DIR__ . '/../../public/images/user/' . $uniqueId . $extension;
+            file_put_contents($filePath, $binaryImageData);
+            $user->setPhoto($uniqueId . $extension);
+        }
+        if (isset($dataArray['is_banned'])) $user->setIsBanned($dataArray["is_banned"]);
         $entityManager->persist($user);
         $entityManager->flush();
         return new Response($this->jsonConverter->encodeToJson($user));

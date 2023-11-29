@@ -160,9 +160,9 @@ class PostController extends AbstractController
                 'Pas de post'
             );
         }
-        $post->setImage($data['image']);
-        $post->setIsOpen($data['is_open']);
-        $post->setDescription($data['description']);
+        if (isset($data['image'])) $post->setImage($data['image']);
+        if (isset($data['is_open'])) $post->setIsOpen($data['is_open']);
+        if (isset($data['description'])) $post->setDescription($data['description']);
         $entityManager->persist($post);
         $entityManager->flush();
         return new Response($this->jsonConverter->encodeToJson($post));
