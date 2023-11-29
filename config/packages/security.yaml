@@ -26,9 +26,9 @@ security:
     access_control:
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api/post, roles: ROLE_USER }
-        - { path: ^/api/commentaire, roles: ROLE_USER }
-        - { path: ^/api/likes, roles: ROLE_USER }
+        - { path: ^/api/post, roles: PUBLIC_ACCESS }
+        - { path: ^/api/commentaire, roles: PUBLIC_ACCESS }
+        - { path: ^/api/likes, roles: PUBLIC_ACCESS }
         - { path: ^/api/user, roles: ROLE_ADMIN  }
         - { path: ^/api, roles: PUBLIC_ACCESS }
 

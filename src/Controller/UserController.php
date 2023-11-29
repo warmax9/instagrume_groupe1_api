@@ -117,7 +117,6 @@ class UserController extends AbstractController
             properties: [
                 new OA\Property(property: 'username', type: 'string'),
                 new OA\Property(property: 'password', type: 'string'),
-                new OA\Property(property: 'photo', type: 'string'),
             ]
         )
     )]
@@ -132,7 +131,7 @@ class UserController extends AbstractController
         $user->setUsername($dataArray['username']);
         $user->setRoles(["ROLE_USER"]);
         $user->setPassword($this->passwordHasher->hashPassword($user, $dataArray['password']));
-
+/*
         $binaryImageData = base64_decode($dataArray['photo']);
         //récupère l'extension de l'image
         $imageType = exif_imagetype('data://image/jpeg;base64,' . base64_encode($binaryImageData));
@@ -141,7 +140,8 @@ class UserController extends AbstractController
         $filePath = __DIR__ . '/../../public/images/user/' . $uniqueId . $extension;
         file_put_contents($filePath, $binaryImageData);
         $user->setPhoto($uniqueId . $extension);
-
+*/
+        $user->setPhoto("null");
         $user->setModo(false);
         $entityManager->persist($user);
         $data = $this->jsonConverter->encodeToJson($user);
