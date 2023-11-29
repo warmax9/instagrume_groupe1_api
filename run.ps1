@@ -5,11 +5,11 @@ function InstallDependencies {
     Write-Host "Create DB..."
     php bin/console doctrine:database:create
     Write-Host "Make migration..."
-    php bin/console make:migration
+    php bin/console make:migration -n
     Write-Host "Migrate..."
-    php bin/console doctrine:migrations:migrate
+    php bin/console doctrine:migrations:migrate -n
     Write-Host "Fixtures Load..."
-    php bin/console doctrine:fixtures:load
+    php bin/console doctrine:fixtures:load -n
 }
 
 # .\run.ps1 run
