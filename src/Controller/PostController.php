@@ -50,11 +50,6 @@ class PostController extends AbstractController
             $user = $entityManager->getRepository(User::class)->find($idUSer);
             $posts = $entityManager->getRepository(Post::class)->findPostsByUser($user);
         }
-        foreach ($posts as $post) {
-            $img = file_get_contents(__DIR__ . '/../../public/images/post/' . $post->getImage());
-            $post->setImage(base64_encode($img));
-            $entityManager->persist($post);
-        }
         return new Response($this->jsonConverter->encodeToJson($posts));
     }
 

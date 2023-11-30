@@ -4,6 +4,8 @@ function InstallDependencies {
     composer install
     Write-Host "Create DB..."
     php bin/console doctrine:database:create
+    Write-Host "Create migration folder..."
+    mkdir migrations
     Write-Host "Make migration..."
     php bin/console make:migration -n
     Write-Host "Migrate..."
