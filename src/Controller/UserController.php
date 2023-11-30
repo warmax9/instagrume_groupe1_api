@@ -21,15 +21,10 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
 class UserController extends AbstractController
 {
-
-    private $passwordHasher;
-    private $jsonConverter;
-
-    public  function __construct(UserPasswordHasherInterface $passwordHasher, JsonConverter $jsonConverter)
+    public function __construct(private UserPasswordHasherInterface $passwordHasher, private JsonConverter $jsonConverter, private ManagerRegistry $doctrine)
     {
-        $this->passwordHasher = $passwordHasher;
-        $this->jsonConverter = $jsonConverter;
     }
+
     #[Route('/api/login', methods: ['POST'])]
     #[OA\Response(
         response: 200,
@@ -52,16 +47,15 @@ class UserController extends AbstractController
         )
     )]
     #[OA\Tag(name: 'User')]
-    public function getToken(ManagerRegistry $doctrine, JWTTokenManagerInterface $JWTManager)
+    public function getToken(Request $request, JWTTokenManagerInterface $JWTManager)
     {
-        $request = Request::createFromGlobals();
         $data = json_decode($request->getContent(), true);
 
         if (!is_array($data) || $data == null || empty($data['username']) || empty($data['password'])) {
             return new Response('Identifiants invalides', 401);
         }
 
-        $entityManager = $doctrine->getManager();
+        $entityManager = $this->doctrine->getManager();
         $user = $entityManager->getRepository(User::class)->findOneBy(['username' => $data['username']]);
 
         if (!$user) {
@@ -77,14 +71,14 @@ class UserController extends AbstractController
 
     #[Route('/api/myself', methods: ['GET'])]
     #[OA\Tag(name: 'User')]
-    public function getUserByToken(Request $request, JWTEncoderInterface $JWTManager, ManagerRegistry $doctrine)
+    public function getUserByToken(Request $request, JWTEncoderInterface $JWTManager)
     {
         $headers = $request->headers->all();
         $authorization = $request->headers->get('Authorization');
         $token = substr($authorization, 7);
         $data = $JWTManager->decode($token);
 
-        $entityManager = $doctrine->getManager();
+        $entityManager = $this->doctrine->getManager();
         $user = $entityManager->getRepository(User::class)->findOneBy(['username' => $data['username']]);
         $img = file_get_contents(__DIR__ . '/../../public/images/user/' . $user->getPhoto());
         $user->setPhoto(base64_encode($img));
@@ -131,7 +125,7 @@ class UserController extends AbstractController
         $user->setUsername($dataArray['username']);
         $user->setRoles(["ROLE_USER"]);
         $user->setPassword($this->passwordHasher->hashPassword($user, $dataArray['password']));
-/*
+        /*
         $binaryImageData = base64_decode($dataArray['photo']);
         //récupère l'extension de l'image
         $imageType = exif_imagetype('data://image/jpeg;base64,' . base64_encode($binaryImageData));
@@ -184,7 +178,7 @@ class UserController extends AbstractController
         if (isset($dataArray['password'])) $user->setPassword($this->passwordHasher->hashPassword($user, $dataArray['password']));
         if (isset($dataArray['photo'])) {
             $uniqueId = uniqid();
-            unlink( __DIR__ . '/../../public/images/user/' . $user->getPhoto());
+            unlink(__DIR__ . '/../../public/images/user/' . $user->getPhoto());
             $binaryImageData = base64_decode($dataArray['photo']);
             //récupère l'extension de l'image
             $imageType = exif_imagetype('data://image/jpeg;base64,' . base64_encode($binaryImageData));

@@ -14,16 +14,12 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Service\JsonConverter;
-use App\Repository\PostRepository;
 
 class PostController extends AbstractController
 {
 
-    private $jsonConverter;
-
-    public  function __construct(JsonConverter $jsonConverter)
+    public function __construct(private JsonConverter $jsonConverter, private ManagerRegistry $doctrine)
     {
-        $this->jsonConverter = $jsonConverter;
     }
 
     #[Route('/api/posts', methods: ['GET'])]
@@ -39,10 +35,9 @@ class PostController extends AbstractController
         content: new OA\JsonContent(ref: new Model(type: Post::class))
     )]
     #[OA\Tag(name: 'Post')]
-    public function getPosts(ManagerRegistry $doctrine, PostRepository $postRepository)
+    public function getPosts(Request $request): Response
     {
-        $entityManager = $doctrine->getManager();
-        $request = Request::createFromGlobals();
+        $entityManager = $this->doctrine->getManager();
         $idUSer = $request->query->get('user_id');
         if (!$idUSer) {
             $posts = $entityManager->getRepository(Post::class)->findAll();
@@ -72,12 +67,11 @@ class PostController extends AbstractController
         )
     )]
     #[OA\Tag(name: 'Post')]
-    public function insertPost(ManagerRegistry $doctrine)
+    public function insertPost(Request $request): Response
     {
         $uniqueId = uniqid();
-        $request = Request::createFromGlobals();
         $dataArray = json_decode($request->getContent(), true);
-        $entityManager = $doctrine->getManager();
+        $entityManager = $this->doctrine->getManager();
         $user = $entityManager->getRepository(User::class)->find($dataArray['user_id']);
         $post = new Post();
         $post->setUser($user);
@@ -110,9 +104,9 @@ class PostController extends AbstractController
         description: 'L\'identifiant d\'un post'
     )]
     #[OA\Tag(name: 'Post')]
-    public function deletePost(ManagerRegistry $doctrine, $id)
+    public function deletePost($id): Response
     {
-        $entityManager = $doctrine->getManager();
+        $entityManager = $this->doctrine->getManager();
         $post = $entityManager->getRepository(Post::class)->find($id);
         if (!$post) {
             throw $this->createNotFoundException(
@@ -144,12 +138,11 @@ class PostController extends AbstractController
         )
     )]
     #[OA\Tag(name: 'Post')]
-    public function updatePost(ManagerRegistry $doctrine)
+    public function updatePost(Request $request): Response
     {
-        $entityManager = $doctrine->getManager();
-        $request = Request::createFromGlobals();
+        $entityManager = $this->doctrine->getManager();
         $data = json_decode($request->getContent(), true);
-        $post = $doctrine->getRepository(Post::class)->find($data['id']);
+        $post = $this->doctrine->getRepository(Post::class)->find($data['id']);
         if (!$post) {
             throw $this->createNotFoundException(
                 'Pas de post'

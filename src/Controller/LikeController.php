@@ -18,15 +18,14 @@ use App\Service\JsonConverter;
 
 class LikeController extends AbstractController {
 
-    private $jsonConverter;
-    public  function __construct(JsonConverter $jsonConverter) {
-        $this->jsonConverter = $jsonConverter;
+    public  function __construct(private JsonConverter $jsonConverter, private ManagerRegistry $doctrine) {
     }
 
     #[Route('/api/likes', methods: ['GET'])]
     #[OA\Tag(name: 'Like')]
-    public function getPosts(ManagerRegistry $doctrine){
-        $entityManager = $doctrine->getManager();
+    public function getPosts(): Response
+    {
+        $entityManager = $this->doctrine->getManager();
         $like = $entityManager->getRepository(Like::class)->findAll();
 
         return new Response($this->jsonConverter->encodeToJson($like));
@@ -52,10 +51,10 @@ class LikeController extends AbstractController {
 		)
 	)]
 	#[OA\Tag(name: 'Like')]
-    public function insertLike(ManagerRegistry $doctrine){
-        $request = Request::createFromGlobals();
+    public function insertLike(Request $request): Response
+    {
         $dataArray = json_decode($request->getContent(), true);
-        $entityManager = $doctrine->getManager();
+        $entityManager = $this->doctrine->getManager();
 
         $like = new Like();
         $like->setValue($dataArray['value']);
@@ -93,11 +92,11 @@ class LikeController extends AbstractController {
 		)
 	)]
     #[OA\Tag(name: 'Like')]
-	public function updateLike(ManagerRegistry $doctrine) {
-		$entityManager = $doctrine->getManager();
-        $request = Request::createFromGlobals();
+	public function updateLike(Request $request): Response
+    {
+		$entityManager = $this->doctrine->getManager();
         $data = json_decode($request->getContent(), true);
-        $like = $doctrine->getRepository(Like::class)->find($data['id']);
+        $like = $this->doctrine->getRepository(Like::class)->find($data['id']);
         if (!$like) {
             throw $this->createNotFoundException(
                 'Pas de like'
@@ -120,8 +119,9 @@ class LikeController extends AbstractController {
 		description: 'L\'identifiant d\'un like'
 	)]
 	#[OA\Tag(name: 'Like')]
-	public function deleteLike(ManagerRegistry $doctrine, $id) {
-		$entityManager = $doctrine->getManager();
+	public function deleteLike($id): Response
+    {
+		$entityManager = $this->doctrine->getManager();
         $like = $entityManager->getRepository(Like::class)->find($id);
         if (!$like) {
             throw $this->createNotFoundException(

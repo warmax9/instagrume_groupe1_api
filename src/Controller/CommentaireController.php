@@ -15,10 +15,8 @@ use OpenApi\Attributes as OA;
 use Nelmio\ApiDocBundle\Annotation\Model;
 
 class CommentaireController extends AbstractController {
-
-    private $jsonConverter;
-    public  function __construct(JsonConverter $jsonConverter) {
-        $this->jsonConverter = $jsonConverter;
+    public  function __construct(private JsonConverter $jsonConverter, private ManagerRegistry $doctrine)
+    {
     }
 
     #[Route('/api/commentaire', methods: ['GET'])]
@@ -29,9 +27,8 @@ class CommentaireController extends AbstractController {
         schema: new OA\Schema(type: 'integer')
     )]
     #[OA\Tag(name: 'Commentaire')]
-    public function getPosts(ManagerRegistry $doctrine){
-        $entityManager = $doctrine->getManager();
-        $request = Request::createFromGlobals();
+    public function getPosts(Request $request){
+        $entityManager = $this->doctrine->getManager();
         $idPost = $request->query->get('post_id');
         if(!$idPost){
             $commentaires = $entityManager->getRepository(Commentaire::class)->findAll();
@@ -63,10 +60,10 @@ class CommentaireController extends AbstractController {
 		)
 	)]
 	#[OA\Tag(name: 'Commentaire')]
-    public function insertCommentaire(ManagerRegistry $doctrine){
-        $request = Request::createFromGlobals();
+    public function insertCommentaire(Request $request): Response
+    {
         $dataArray = json_decode($request->getContent(), true);
-        $entityManager = $doctrine->getManager();
+        $entityManager = $this->doctrine->getManager();
 
         $commentaire = new Commentaire();
         $commentaire->setContent($dataArray['content']);
@@ -96,8 +93,8 @@ class CommentaireController extends AbstractController {
 		description: 'L\'identifiant d\'un commentaire'
 	)]
 	#[OA\Tag(name: 'Commentaire')]
-	public function deleteCommentaire(ManagerRegistry $doctrine, $id) {
-		$entityManager = $doctrine->getManager();
+	public function deleteCommentaire($id) {
+		$entityManager = $this->doctrine->getManager();
         $commentaire = $entityManager->getRepository(Commentaire::class)->find($id);
         if (!$commentaire) {
             throw $this->createNotFoundException(
@@ -127,11 +124,11 @@ class CommentaireController extends AbstractController {
 		)
 	)]
     #[OA\Tag(name: 'Commentaire')]
-	public function updateCommentaire(ManagerRegistry $doctrine) {
-		$entityManager = $doctrine->getManager();
-        $request = Request::createFromGlobals();
+	public function updateCommentaire(Request $request): Response
+    {
+		$entityManager = $this->doctrine->getManager();
         $data = json_decode($request->getContent(), true);
-        $commentaire = $doctrine->getRepository(Commentaire::class)->find($data['id']);
+        $commentaire = $this->doctrine->getRepository(Commentaire::class)->find($data['id']);
         if (!$commentaire) {
             throw $this->createNotFoundException(
                 'Pas de commentaire'
