@@ -19,7 +19,7 @@ class LikeFixtures extends Fixture
 
         $like2 = new Like();
         $like2->setValue(false);
-        $like2->setCommentaire($this->getReference(CommantaireFixtures::COM_POST_REFERENCE));
+        $like2->setCommentaire($this->getReference(CommentaireFixtures::COM_POST_REFERENCE));
         $like2->setUser($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
         $manager->persist($like2);
         $manager->flush();
