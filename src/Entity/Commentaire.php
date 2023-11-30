@@ -70,6 +70,11 @@ class Commentaire
         return $this;
     }
 
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
     public function getPost(): ?Post
     {
         return $this->post;

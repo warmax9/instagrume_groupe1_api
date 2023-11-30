@@ -67,6 +67,11 @@ class Post
         return $this;
     }
 
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
     public function getDescription(): ?string
     {
         return $this->description;
