@@ -9,13 +9,16 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class JsonConverter {
 
-    public function encodeToJson($data) {
+    private $serializer;
+
+    public function __construct() {
         $encoders = [new JsonEncoder()];
-		$normalizers = [new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())];
+        $normalizers = [new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())];
+        $this->serializer = new Serializer($normalizers, $encoders);
+    }
 
-		$serializer = new Serializer($normalizers, $encoders);
-
-        $jsonContent = $serializer->serialize($data, 'json', [
+    public function encodeToJson($data) {
+        $jsonContent = $this->serializer->serialize($data, 'json', [
             'circular_reference_handler' => function ($object) {
                 return $object->getId();
             }
@@ -25,11 +28,7 @@ class JsonConverter {
     }
 
     public function decodeFromJSon($data, $className) {
-        $encoders = [new JsonEncoder()];
-		$normalizers = [new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())];
-
-		$serializer = new Serializer($normalizers, $encoders);
-        $object = $serializer->deserialize($data, $className, 'json');
+        $object = $this->serializer->deserialize($data, $className, 'json');
         return $object;
     }
 }

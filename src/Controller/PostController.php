@@ -48,6 +48,14 @@ class PostController extends AbstractController
         return new Response($this->jsonConverter->encodeToJson($posts));
     }
 
+    #[Route('/api/posts/{id}', methods: ['GET'])]
+    public function getPost($id): Response
+    {
+        $entityManager = $this->doctrine->getManager();
+        $post = $entityManager->getRepository(Post::class)->find($id);
+        return new Response($this->jsonConverter->encodeToJson($post));
+    }
+
     #[Route('/api/posts', methods: ['POST'])]
     #[OA\Post(description: 'Crée un nouveau post et retourne ses informations')]
     #[OA\Response(
