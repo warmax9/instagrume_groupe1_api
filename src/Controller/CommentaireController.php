@@ -27,7 +27,8 @@ class CommentaireController extends AbstractController {
         schema: new OA\Schema(type: 'integer')
     )]
     #[OA\Tag(name: 'Commentaire')]
-    public function getPosts(Request $request){
+    public function getPosts(Request $request): Response
+    {
         $entityManager = $this->doctrine->getManager();
         $idPost = $request->query->get('post_id');
         if(!$idPost){
