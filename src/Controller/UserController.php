@@ -73,28 +73,22 @@ class UserController extends AbstractController
     #[OA\Tag(name: 'User')]
     public function getUserByToken(Request $request, JWTEncoderInterface $JWTManager)
     {
-        $headers = $request->headers->all();
         $authorization = $request->headers->get('Authorization');
         $token = substr($authorization, 7);
         $data = $JWTManager->decode($token);
 
         $entityManager = $this->doctrine->getManager();
         $user = $entityManager->getRepository(User::class)->findOneBy(['username' => $data['username']]);
-        $img = file_get_contents(__DIR__ . '/../../public/images/user/' . $user->getPhoto());
-        $user->setPhoto(base64_encode($img));
         $data = $this->jsonConverter->encodeToJson($user);
         return new Response($data);
     }
 
     #[Route('/api/user/{id}', methods: ['GET'])]
     #[OA\Tag(name: 'User')]
-    public function getUserById(Request $request, JWTEncoderInterface $JWTManager, ManagerRegistry $doctrine, $id)
+    public function getUserById($id)
     {
-
-        $entityManager = $doctrine->getManager();
+        $entityManager = $this->doctrine->getManager();
         $user = $entityManager->getRepository(User::class)->find($id);
-        $img = file_get_contents(__DIR__ . '/../../public/images/user/' . $user->getPhoto());
-        $user->setPhoto(base64_encode($img));
         return new Response($this->jsonConverter->encodeToJson($user));
     }
 
