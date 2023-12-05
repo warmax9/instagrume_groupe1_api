@@ -170,4 +170,15 @@ class Post
 
         return $this;
     }
+
+    public function userLiked(User $user): ?Like
+    {
+        foreach ($this->likes as $like) {
+            if ($like->getUser() === $user) {
+                return $like;
+            }
+        }
+
+        return null;
+    }
 }

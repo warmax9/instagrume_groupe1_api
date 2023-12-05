@@ -61,17 +61,20 @@ class LikeController extends AbstractController {
         $like->setUser($user);
         if(isset($dataArray['post_id'])){
             $post = $entityManager->getRepository(Post::class)->find($dataArray['post_id']);
+            $existLike = $post->userLiked($user);
+            if($existLike!= null) {
+                return new Response($this->jsonConverter->encodeToJson($existLike));
+            }
             $like->setPost($post);
         }
         if(isset($dataArray['commentaire_id'])){
             $commentaire = $entityManager->getRepository(Commentaire::class)->find($dataArray['commentaire_id']);
             $like->setCommentaire($commentaire);
         }
-        $existingLike = $entityManager->getRepository(Like::class)->findOneBy(['value' => $dataArray['value']]);
         $entityManager->persist($like);
         $entityManager->flush();
 
-        return new Response($this->jsonConverter->encodeToJson($like));
+        return new Response(null);
     }
 
     #[Route('/api/likes', methods: ['PUT'])]
