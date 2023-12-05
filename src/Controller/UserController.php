@@ -18,14 +18,14 @@ use App\Service\JsonConverter;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
-
+#[Route('/api')]
 class UserController extends AbstractController
 {
     public function __construct(private UserPasswordHasherInterface $passwordHasher, private JsonConverter $jsonConverter, private ManagerRegistry $doctrine)
     {
     }
 
-    #[Route('/api/login', methods: ['POST'])]
+    #[Route('/login', methods: ['POST'])]
     #[OA\Response(
         response: 200,
         description: 'Génère un token de connexion',
@@ -69,7 +69,7 @@ class UserController extends AbstractController
         return new JsonResponse(['token' => $token]);
     }
 
-    #[Route('/api/myself', methods: ['GET'])]
+    #[Route('/myself', methods: ['GET'])]
     #[OA\Tag(name: 'User')]
     public function getUserByToken(Request $request, JWTEncoderInterface $JWTManager)
     {
@@ -83,7 +83,7 @@ class UserController extends AbstractController
         return new Response($data);
     }
 
-    #[Route('/api/user/{id}', methods: ['GET'])]
+    #[Route('/user/{id}', methods: ['GET'])]
     #[OA\Tag(name: 'User')]
     public function getUserById($id)
     {
@@ -92,7 +92,7 @@ class UserController extends AbstractController
         return new Response($this->jsonConverter->encodeToJson($user));
     }
 
-    #[Route('/api/register', methods: ['POST'])]
+    #[Route('/register', methods: ['POST'])]
     #[OA\Response(
         response: 200,
         description: 'Créer un nouvelle utilisateur et le retourne',
@@ -137,7 +137,7 @@ class UserController extends AbstractController
         return new Response($data);
     }
 
-    #[Route('/api/user', methods: ['PUT'])]
+    #[Route('/user', methods: ['PUT'])]
     #[OA\Put(description: 'Modifie un utilisateur')]
     #[OA\Response(
         response: 200,
@@ -186,5 +186,14 @@ class UserController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
         return new Response($this->jsonConverter->encodeToJson($user));
+    }
+
+    #[Route('/userByTerm', methods: ['GET', 'POST'])]
+    public function findUserByTerm(Request $request): Response
+    {
+        $searchTerm = $request->query->get('searchTerm');
+        $users = $this->doctrine->getRepository(User::class)->findBySearchTerm($searchTerm);
+        $data = $this->jsonConverter->encodeToJson($users);
+        return new Response($data);
     }
 }
