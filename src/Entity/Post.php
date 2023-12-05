@@ -36,6 +36,9 @@ class Post
     #[ORM\Column]
     private ?bool $isOpen = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $date_creation = null;
+
     public function __construct()
     {
         $this->commentaires = new ArrayCollection();
@@ -152,6 +155,18 @@ class Post
     public function setIsOpen(bool $isOpen): static
     {
         $this->isOpen = $isOpen;
+
+        return $this;
+    }
+
+    public function getDateCreation(): ?\DateTimeInterface
+    {
+        return $this->date_creation;
+    }
+
+    public function setDateCreation(?\DateTimeInterface $date_creation): static
+    {
+        $this->date_creation = $date_creation;
 
         return $this;
     }

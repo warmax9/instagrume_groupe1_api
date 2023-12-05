@@ -14,6 +14,7 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Service\JsonConverter;
+use DateTime;
 
 class PostController extends AbstractController
 {
@@ -49,6 +50,13 @@ class PostController extends AbstractController
     }
 
     #[Route('/api/posts/{id}', methods: ['GET'])]
+    #[OA\Get(description: 'Récupère un post via son id')]
+    #[OA\Response(
+        response: 200,
+        description: 'le post de l\'id correspondant',
+        content: new OA\JsonContent(ref: new Model(type: Post::class))
+    )]
+    #[OA\Tag(name: 'Post')]
     public function getPost($id): Response
     {
         $entityManager = $this->doctrine->getManager();
@@ -96,6 +104,7 @@ class PostController extends AbstractController
         file_put_contents($filePath, $binaryImageData);
 
         $post->setImage($uniqueId . $extension);
+        $post->setDateCreation(new DateTime('now'));
         $entityManager->persist($post);
         $entityManager->flush();
 
