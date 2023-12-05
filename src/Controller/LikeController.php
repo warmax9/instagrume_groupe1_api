@@ -55,10 +55,9 @@ class LikeController extends AbstractController {
     {
         $dataArray = json_decode($request->getContent(), true);
         $entityManager = $this->doctrine->getManager();
-
+        $user = $entityManager->getRepository(User::class)->find($dataArray['user_id']);
         $like = new Like();
         $like->setValue($dataArray['value']);
-        $user = $entityManager->getRepository(User::class)->find($dataArray['user_id']);
         $like->setUser($user);
         if(isset($dataArray['post_id'])){
             $post = $entityManager->getRepository(Post::class)->find($dataArray['post_id']);
@@ -68,6 +67,7 @@ class LikeController extends AbstractController {
             $commentaire = $entityManager->getRepository(Commentaire::class)->find($dataArray['commentaire_id']);
             $like->setCommentaire($commentaire);
         }
+        $existingLike = $entityManager->getRepository(Like::class)->findOneBy(['value' => $dataArray['value']]);
         $entityManager->persist($like);
         $entityManager->flush();
 
