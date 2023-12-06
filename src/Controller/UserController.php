@@ -137,7 +137,7 @@ class UserController extends AbstractController
         return new Response($data);
     }
 
-    #[Route('/user', methods: ['PUT'])]
+    #[Route('/user/edit', methods: ['PUT'])]
     #[OA\Put(description: 'Modifie un utilisateur')]
     #[OA\Response(
         response: 200,
@@ -189,6 +189,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/userByTerm', methods: ['GET', 'POST'])]
+    #[OA\Tag(name: 'User')]
     public function findUserByTerm(Request $request): Response
     {
         $searchTerm = $request->query->get('searchTerm');
