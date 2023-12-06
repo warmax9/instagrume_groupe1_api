@@ -74,7 +74,7 @@ class LikeController extends AbstractController {
         $entityManager->persist($like);
         $entityManager->flush();
 
-        return new Response(null);
+        return new Response($this->jsonConverter->encodeToJson(["result" =>"creation"]));
     }
 
     #[Route('/api/likes', methods: ['PUT'])]
@@ -133,6 +133,6 @@ class LikeController extends AbstractController {
         }
         $entityManager->remove($like);
         $entityManager->flush();
-        return new Response("sucess");
+        return new Response($this->jsonConverter->encodeToJson($like));
     }
 }
