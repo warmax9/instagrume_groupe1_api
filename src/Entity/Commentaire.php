@@ -160,15 +160,15 @@ class Commentaire
         return $this;
     }
 
-    public function userLiked(User $user): bool
+    public function userLiked(User $user): ?Like
     {
         foreach ($this->likes as $like) {
-            if ($like->getUser() === $user && $like->isValue()) {
-                return true;
+            if ($like->getUser() === $user) {
+                return $like;
             }
         }
 
-        return false;
+        return null;
     }
 
 
