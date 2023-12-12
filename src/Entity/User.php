@@ -152,6 +152,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
 
 
+    public function getPost(){
+        return $this->posts;
+    }
     public function addPost(Post $post): static
     {
         if (!$this->posts->contains($post)) {
