@@ -197,4 +197,13 @@ class UserController extends AbstractController
         $data = $this->jsonConverter->encodeToJson($users);
         return new Response($data);
     }
+
+    #[Route('/user', methods: ['GET'])]
+    #[OA\Tag(name: 'User')]
+    public function getAllUser() : Response
+    {
+        $users = $this->doctrine->getRepository(User::class)->findAll();
+        $data = $this->jsonConverter->encodeToJson($users);
+        return new Response($data);
+    }
 }
