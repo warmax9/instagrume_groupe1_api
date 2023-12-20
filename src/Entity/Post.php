@@ -34,8 +34,8 @@ class Post
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Like::class)]
     private Collection $likes;
 
-    #[ORM\Column]
-    private ?bool $isOpen;
+    #[ORM\Column(nullable: true)]
+    private ?bool $isOpen = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date_creation;
