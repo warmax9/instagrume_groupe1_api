@@ -19,8 +19,6 @@ class PostFixtures extends Fixture
         $post->setDescription("Description photo kiwi");
         $post->setImage('kiwi.jpg');
         $post->setUser($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
-        $post->setIsOpen(true);
-        $post->setDateCreation(new DateTime('now'));
         $manager->persist($post);
         $this->addReference(self::KIWI_POST_REFERENCE, $post);
 
@@ -28,8 +26,6 @@ class PostFixtures extends Fixture
         $post->setDescription("Le petit dej d'un go muscu");
         $post->setImage('agrummes.jpg');
         $post->setUser($this->getReference(UserFixtures::USER1_USER_REFERENCE));
-        $post->setIsOpen(true);
-        $post->setDateCreation(new DateTime('now'));
         $manager->persist($post);
         $this->addReference(self::AGRUMMES_POST_REFERENCE, $post);
 

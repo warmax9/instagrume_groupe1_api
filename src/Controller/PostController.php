@@ -95,7 +95,6 @@ class PostController extends AbstractController
         if (isset($dataArray['description'])) {
             $post->setDescription($dataArray['description']);
         }
-        $post->setIsOpen(true);
         //récupère l'extension de l'image
         $imageType = exif_imagetype('data://image/jpeg;base64,' . base64_encode($binaryImageData));
         $extension = image_type_to_extension($imageType);
@@ -104,7 +103,6 @@ class PostController extends AbstractController
         file_put_contents($filePath, $binaryImageData);
 
         $post->setImage($uniqueId . $extension);
-        $post->setDateCreation(new DateTime('now'));
         $entityManager->persist($post);
         $entityManager->flush();
 

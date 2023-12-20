@@ -33,7 +33,6 @@ class UserFixtures extends Fixture
         $user->setRoles(["ROLE_ADMIN"]);
         $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
         $user->setPhoto("user1.jpg");
-        $user->setModo(false);
         $manager->persist($user);
         $this->addReference(self::ADMIN_USER_REFERENCE, $user);
 

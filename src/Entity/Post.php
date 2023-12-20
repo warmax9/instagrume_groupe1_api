@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PostRepository;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -34,15 +35,17 @@ class Post
     private Collection $likes;
 
     #[ORM\Column]
-    private ?bool $isOpen = null;
+    private ?bool $isOpen;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $date_creation = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $date_creation;
 
     public function __construct()
     {
         $this->commentaires = new ArrayCollection();
         $this->likes = new ArrayCollection();
+        $this->date_creation = new DateTime();
+        $this->isOpen = false;
     }
 
     public function getId(): ?int

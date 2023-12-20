@@ -35,10 +35,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $photo;
 
     #[ORM\Column]
-    private ?bool $isModo;
+    private ?bool $isModo = false;
 
-    #[ORM\Column(nullable: true)]
-    private ?bool $isBanned;
+    #[ORM\Column]
+    private ?bool $isBanned = false;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Post::class, orphanRemoval: true)]
     private Collection $posts;
