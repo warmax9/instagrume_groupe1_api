@@ -197,11 +197,4 @@ class UserController extends AbstractController
         $data = $this->jsonConverter->encodeToJson($users);
         return new Response($data);
     }
-
-    #[Route('/userByTerm', methods: ['GET', 'POST'])]
-    #[OA\Tag(name: 'User')]
-    public function findUser()
-    {
-
-    }
 }
