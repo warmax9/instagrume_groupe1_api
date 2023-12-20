@@ -1,8 +1,8 @@
 nelmio_api_doc:
     documentation:
         info:
-            title: Velotaf API
-            description: Application de gestion de velotaf
+            title: Instagrume API
+            description: Application de gestion de instagrume
             version: 1.0.0
         security:
             - jwt: []
