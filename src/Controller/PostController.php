@@ -14,7 +14,6 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Service\JsonConverter;
-use DateTime;
 
 class PostController extends AbstractController
 {
@@ -169,5 +168,13 @@ class PostController extends AbstractController
         $entityManager->persist($post);
         $entityManager->flush();
         return new Response($this->jsonConverter->encodeToJson($post));
+    }
+
+    #[Route('/api/TopPost', methods: ['GET'])]
+    #[OA\Tag(name: 'Post')]
+    public function getTopPost(Request $request): Response
+    {
+        $posts = $this->doctrine->getRepository(Post::class)->findTopPosts($request->query->get('filter'));
+        return new Response($this->jsonConverter->encodeToJson($posts));
     }
 }
