@@ -59,10 +59,10 @@ class UserController extends AbstractController
         $user = $entityManager->getRepository(User::class)->findOneBy(['username' => $data['username']]);
 
         if (!$user) {
-            throw $this->createNotFoundException();
+            return new JsonResponse(['token' => null]);
         }
         if (!$this->passwordHasher->isPasswordValid($user, $data['password'])) {
-            return new Response('Identifiants invalides', 401);
+            return new JsonResponse(['token' => null]);
         }
 
         $token = $JWTManager->create($user);
@@ -119,17 +119,7 @@ class UserController extends AbstractController
         $user->setUsername($dataArray['username']);
         $user->setRoles(["ROLE_USER"]);
         $user->setPassword($this->passwordHasher->hashPassword($user, $dataArray['password']));
-        /*
-        $binaryImageData = base64_decode($dataArray['photo']);
-        //récupère l'extension de l'image
-        $imageType = exif_imagetype('data://image/jpeg;base64,' . base64_encode($binaryImageData));
-        $extension = image_type_to_extension($imageType);
-
-        $filePath = __DIR__ . '/../../public/images/user/' . $uniqueId . $extension;
-        file_put_contents($filePath, $binaryImageData);
-        $user->setPhoto($uniqueId . $extension);
-*/
-        $user->setPhoto("null");
+        $user->setPhoto("default.png");
         $user->setModo(false);
         $entityManager->persist($user);
         $data = $this->jsonConverter->encodeToJson($user);
@@ -182,7 +172,14 @@ class UserController extends AbstractController
             file_put_contents($filePath, $binaryImageData);
             $user->setPhoto($uniqueId . $extension);
         }
-        if (isset($dataArray['is_banned'])) $user->setIsBanned($dataArray["is_banned"]);
+        if (isset($dataArray['is_banned']) != null){
+            if($user->isIsBanned()){
+                $user->setIsBanned(false);
+            }
+            else{
+                $user->setIsBanned(true);
+            }
+        }
         $entityManager->persist($user);
         $entityManager->flush();
         return new Response($this->jsonConverter->encodeToJson($user));
