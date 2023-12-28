@@ -12,6 +12,10 @@ class PostFixtures extends Fixture
 {
     public const KIWI_POST_REFERENCE = 'kiwi';
     public const AGRUMMES_POST_REFERENCE = 'agrummes';
+    public const SALADE_FRUIT_POST_REFERENCE = 'salade-fruit';
+    public const FRAISE_POST_REFERENCE = 'fraise';
+    public const ORANGE_POST_REFERENCE = 'orange';
+    public const ANANAS_POST_REFERENCE = 'ananas';
 
     public function load(ObjectManager $manager): void
     {
@@ -28,6 +32,34 @@ class PostFixtures extends Fixture
         $post->setUser($this->getReference(UserFixtures::USER1_USER_REFERENCE));
         $manager->persist($post);
         $this->addReference(self::AGRUMMES_POST_REFERENCE, $post);
+
+        $post = new Post();
+        $post->setDescription("Une petit salade de fruits");
+        $post->setImage('salade-fruit.jpg');
+        $post->setUser($this->getReference(UserFixtures::USER1_USER_REFERENCE));
+        $manager->persist($post);
+        $this->addReference(self::SALADE_FRUIT_POST_REFERENCE, $post);
+
+        $post = new Post();
+        $post->setDescription("Delicieuse fraise");
+        $post->setImage('fraise.jpg');
+        $post->setUser($this->getReference(UserFixtures::USER1_USER_REFERENCE));
+        $manager->persist($post);
+        $this->addReference(self::FRAISE_POST_REFERENCE, $post);
+
+        $post = new Post();
+        $post->setDescription("Hmmm");
+        $post->setImage('orange.jpeg');
+        $post->setUser($this->getReference(UserFixtures::USER1_USER_REFERENCE));
+        $manager->persist($post);
+        $this->addReference(self::ORANGE_POST_REFERENCE, $post);
+
+        $post = new Post();
+        $post->setDescription("Magnifique");
+        $post->setImage('ananas.jpeg');
+        $post->setUser($this->getReference(UserFixtures::USER1_USER_REFERENCE));
+        $manager->persist($post);
+        $this->addReference(self::ANANAS_POST_REFERENCE, $post);
 
         $manager->flush();
     }

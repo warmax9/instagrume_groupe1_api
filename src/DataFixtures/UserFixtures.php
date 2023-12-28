@@ -26,7 +26,7 @@ class UserFixtures extends Fixture
         $user->setPhoto("admin.jpeg");
         $user->setModo(true);
         $manager->persist($user);
-        $this->addReference(self::USER1_USER_REFERENCE, $user);
+        $this->addReference(self::ADMIN_USER_REFERENCE, $user);
 
         $user = new User();
         $user->setUsername('user1');
@@ -34,7 +34,7 @@ class UserFixtures extends Fixture
         $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
         $user->setPhoto("user1.jpg");
         $manager->persist($user);
-        $this->addReference(self::ADMIN_USER_REFERENCE, $user);
+        $this->addReference(self::USER1_USER_REFERENCE, $user);
 
         $manager->flush();
     }
