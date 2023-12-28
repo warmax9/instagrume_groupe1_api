@@ -19,6 +19,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
 #[Route('/api')]
+#[OA\Tag(name: 'User')]
 class UserController extends AbstractController
 {
     public function __construct(private UserPasswordHasherInterface $passwordHasher, private JsonConverter $jsonConverter, private ManagerRegistry $doctrine)
@@ -46,7 +47,6 @@ class UserController extends AbstractController
             ]
         )
     )]
-    #[OA\Tag(name: 'User')]
     public function getToken(Request $request, JWTTokenManagerInterface $JWTManager)
     {
         $data = json_decode($request->getContent(), true);
@@ -187,6 +187,7 @@ class UserController extends AbstractController
 
     #[Route('/userByTerm', methods: ['GET', 'POST'])]
     #[OA\Tag(name: 'User')]
+    #[OA\Parameter(name: 'searchTerm', in: 'query', schema: new OA\Schema(type: 'string'))]
     public function findUserByTerm(Request $request): Response
     {
         $searchTerm = $request->query->get('searchTerm');
